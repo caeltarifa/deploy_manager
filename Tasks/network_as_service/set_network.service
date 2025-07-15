@@ -1,0 +1,13 @@
+[Unit]
+Description=Manual Network Configuration
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/set_manual_network.sh
+ExecStop=/usr/bin/killall set_manual_network.sh
+Restart=on-failure
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
