@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# NetworkConnection class definition (Bash simulation)
 NetworkConnection() {
 
     local connection_name="$1"
@@ -9,7 +8,6 @@ NetworkConnection() {
     local gateway="$4"
     local dns_server="$5"
 
-    # Check if the connection exists
     check_connection_exists() {
         local result=$(nmcli con show | grep "$connection_name")
         if [ "$result" ]; then
@@ -19,7 +17,6 @@ NetworkConnection() {
         fi
     }
 
-    # Create the connection
     create() {
         # Check if the connection already exists
         if $(check_connection_exists); then
@@ -27,7 +24,7 @@ NetworkConnection() {
             return
         fi
 
-        # Create the connection
+        # The connection
         echo "Creating connection: $connection_name with MAC address $mac_address"
         sudo nmcli con add con-name "$connection_name" ifname "eno3" mac "$mac_address" \
             type ethernet ip4 "$ip_address" gw4 "$gateway"
@@ -49,15 +46,12 @@ NetworkConnection() {
     }
 }
 
-# Read CSV file and process each line
 process_csv() {
     local csv_file="$1"
 
-    # Read CSV and process each line (skip the header)
     {
         read  # Skip header
         while IFS=',' read -r connection_name mac_address ip_address gateway dns_server; do
-            # Skip empty or malformed lines
             if [[ -z "$connection_name" || -z "$mac_address" || -z "$ip_address" || -z "$gateway" || -z "$dns_server" ]]; then
                 echo "Skipping invalid line: $connection_name, $mac_address, $ip_address, $gateway, $dns_server"
                 continue

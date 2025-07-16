@@ -8,20 +8,25 @@ This project helps you manage your servers by writing simple Python code, tellin
 
 Open the terminal and install Pyinfra.
 
-1.  **Install Pyinfra:**
+1.  **Install Pyinfra**
     ```bash
     python3 -m venv ~/THE_ENV
     source ~/THE_ENV/bin/activate
     pip install pyinfra
     ```
 
-2.  **About Servers:**
+2.  **Azure login**
+    ```bash
+    pyinfra @local Tasks/azure_login_and_populate_project.py
+    ```
+
+3.  **About Servers**
     Edit the `inventory.py` file to list servers.
 
-3.  **Choose What to Do:**
+4.  **Choose What to Do**
     Look in the `tasks/` folder. Pick the "playbook" (Python file) that does what you want.
 
-4.  **Run the Task**
+5.  **Run the Task**
     ```bash
     pyinfra inventory.py tasks/THE_TASK_NAME.py
     ```
