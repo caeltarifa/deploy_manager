@@ -1,3 +1,70 @@
 connection_name,mac_address,ip_address,gateway,dns_server
-sodimac-testing-eno1,90:8D:6E:C0:3A:84,,,10.108.1.1
-sodimac-lascondes-eno1-02,90:8d:6e:c0:3a:87,192.168.1.11/24,192.168.1.1,8.8.8.8
+testing-eno1,90:8D:6E:C0:3A:84,,,10.108.1.1
+lascondes-eno1,90:8d:6e:c0:3a:87,192.168.1.11/24,192.168.1.1,8.8.8.8
+condes01-eno1,,,,
+nueva_florida01-eno1,,,,
+belloto01-eno1,,,,
+chillan01-eno1,,,,
+puerto_montt01-eno1,,,,
+puerto_montt02-eno1,,,,
+coyhaique01-eno1,,,,
+punta_arenas01-eno1,,,,
+
+las condes
+Physical Address: 90-8D-6E-C0-4B-74
+IPv4 Address: 110.34.35.16
+IPv4 Subnet Mask: 255.255.0.0
+IPv4 Default Gateway: 110.34.1.1
+IPv4 DNS Server: 10.108.1.1
+
+nueva_florida01
+Physical Address: 90-8D-6E-C0-4B-04
+IPv4 Address: 10.113.129.251
+IPv4 Subnet Mask: 255.255.254.0
+IPv4 Default Gateway: 10.113.128.1
+IPv4 DNS Server: 10.108.1.1
+
+belloto01
+Physical Address: 90-8D-6E-C0-4B-04
+IPv4 Address: 10.113.129.251
+IPv4 Subnet Mask: 255.255.254.0
+IPv4 Default Gateway: 10.113.128.1
+IPv4 DNS Server: 10.108.1.1
+
+chillan01
+Physical Address: 90-8D-6E-C0-4A-6D
+IPv4 Address: 10.114.135.18
+IPv4 Subnet Mask: 255.255.255.0
+IPv4 Default Gateway: 10.114.135.1
+IPv4 DNS Server: 10.108.1.1
+
+puerto_montt01
+Physical Address: 90-8D-6E-C0-36-18
+IPv4 Address: 10.114.223.28
+IPv4 Subnet Mask: 255.255.255.0
+IPv4 Default Gateway: 10.114.223.1
+IPv4 DNS Server: 10.108.1.1
+
+puerto_montt02
+Physical Address: 90-8D-6E-C0-36-24
+IPv4 Address: 10.114.223.27
+IPv4 Subnet Mask: 255.255.255.0
+IPv4 Default Gateway: 10.114.223.1
+IPv4 DNS Server: 10.108.1.1
+
+coyhaique01
+Physical Address: 90-8D-6E-C0-64-C8
+IPv4 Address: 10.114.231.26
+IPv4 Subnet Mask: 255.255.255.0
+IPv4 Default Gateway: 10.114.231.1
+IPv4 DNS Server: 10.108.1.1
+
+punta_arenas
+Physical Address: 90-8D-6E-C0-5D-10
+IPv4 Address: 110.24.35.232
+IPv4 Subnet Mask: 255.255.0.0
+IPv4 Default Gateway: 110.24.1.1
+IPv4 DNS Server: 10.108.1.1
+
+puerto-montt01-dhcp
+eth0 internet dhcp
