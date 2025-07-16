@@ -10,7 +10,8 @@ _PASSWD=os.getenv("SERVER_PASSWD")
 
 hosts = [
     # ("0.tcp.sa.ngrok.io", {"ssh_user": "admin_sumato", "ssh_port": 16891, "ssh_password":_PASSWD}),
-    ("0.tcp.sa.ngrok.io", {"ssh_user": "admin_sumato", "ssh_port": 10173, "ssh_password":_PASSWD}),
+    ("testing_host","0.tcp.sa.ngrok.io", {"ssh_user": "admin_sumato", "ssh_port": 10173, "ssh_password":_PASSWD}),
+    ("estCentral","0.tcp.sa.ngrok.io", {"ssh_user": "admin_sumato", "ssh_port": 10173, "ssh_password":_PASSWD}),
 ]
 
 inventory = (
