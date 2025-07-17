@@ -1,5 +1,5 @@
 [Unit]
-Description=Rename refind.conf after 10 minutes and reboot
+Description=Return to back Windows
 After=multi-user.target
 Requires=network.target
 

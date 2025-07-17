@@ -19,3 +19,4 @@ To build and run the services in detached mode:
 
 ```bash
 docker compose --env-file ./.env_connections up -d
+```
