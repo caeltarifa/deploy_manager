@@ -23,4 +23,6 @@ apt.packages(
     sudo=True,
 )
 
-# Download the files and sensitive credentials
+# This section fetches files and sensitive credentials from azure's blobs
+# container=deploy_assets
+

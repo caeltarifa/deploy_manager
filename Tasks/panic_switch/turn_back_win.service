@@ -1,0 +1,13 @@
+[Unit]
+Description=Rename refind.conf after 10 minutes and reboot
+After=multi-user.target
+Requires=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/turn_back_win.sh
+TimeoutStartSec=0
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
