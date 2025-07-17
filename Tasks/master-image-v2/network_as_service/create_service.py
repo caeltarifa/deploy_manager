@@ -1,20 +1,19 @@
 from pyinfra.operations import server, files
 
 """
-Task to deploy the network configuration script and systemd service, 
-and enable the systemd service to run on startup.
+Task to deploy the network configuration script and systemd service to run on startup.
 """
 
 files.put(
-    src='network_config.csv',  # Local script
-    dest='/usr/local/bin/network_config.csv', # Destiny  
+    src='network_config.csv',
+    dest='/usr/local/bin/network_config.csv',  
     sudo=True,
     mode=0o755  
 )
 
 files.put(
-    src='set_network.sh',  # Local script
-    dest='/usr/local/bin/set_network.sh', # Destiny  
+    src='set_network.sh',
+    dest='/usr/local/bin/set_network.sh',  
     sudo=True,
     mode=0o755  
 )

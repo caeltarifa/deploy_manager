@@ -23,6 +23,18 @@ apt.packages(
     sudo=True,
 )
 
-# This section fetches files and sensitive credentials from azure's blobs
-# container=deploy_assets
+# fetche files and sensitive credentials from azure's container
+
+source_url = YOUR_SHARED_ACCESS_SIGNATURE
+
+server.shell(
+    name="Download assets with AzCopy",
+    commands=[
+        f'azcopy copy --recursive "{source_url}" "assets"',
+    ],
+    _shell_args=dict(
+        shell="bash", 
+    ),
+)
+
 
