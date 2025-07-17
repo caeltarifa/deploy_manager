@@ -17,7 +17,7 @@ Open the terminal and install Pyinfra.
 
 2.  **Azure login**
     ```bash
-    pyinfra @local Tasks/azure_login_and_populate_project.py
+    pyinfra @local Tasks/fetch_azure_data.py
     ```
 
 3.  **About Servers**

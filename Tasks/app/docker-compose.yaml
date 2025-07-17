@@ -16,7 +16,7 @@ services:
     environment:
       - TZ=America/Santiago
       - AKIRAEDGE_HTTP_PORT=9090
-      - AKIRAEDGE_IOT_CONN_STRING="HostName=AkiraHubProd.azure-devices.net;DeviceId=p100-sodimac-011;SharedAccessKey=XjkvxPJMjF+mzqUwnugaV0JBfXtJtDhgRP2+xVwuzwY="
+      - AKIRAEDGE_IOT_CONN_STRING=${CONNECTION_HQ}
     deploy:
       resources:
         reservations:
@@ -43,7 +43,7 @@ services:
     environment:
       - TZ=America/Santiago
       - AKIRAEDGE_HTTP_PORT=9191
-      - AKIRAEDGE_IOT_CONN_STRING="HostName=AkiraHubProd.azure-devices.net;DeviceId=p100-sodimac-024;SharedAccessKey=IfJvu/YNkIGbv7YoiZxMGTWBOg2Yu096+yzWW+tVFsw="
+      - AKIRAEDGE_IOT_CONN_STRING=${CONNECTION_VT}
     deploy:
       resources:
         reservations:
