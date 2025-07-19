@@ -44,7 +44,7 @@ if download_result.changed:
     files.directory(path=DESTINATION, present=True)
     server.shell(
         name="Copying network listing file",
-        commands=[f"cp {SOURCE} {DESTINATION}"]
+        commands=[f"cp -r {SOURCE} {DESTINATION}"]
     )
 
     SOURCE = f"{AZURE_FILES_DIR}/deploy-assets/.env_connections_strings.csv"
@@ -53,7 +53,7 @@ if download_result.changed:
     files.directory(path=DESTINATION, present=True)
     server.shell(
         name="Copying IoT Hub strings file",
-        commands=[f"cp {SOURCE} {DESTINATION}"]
+        commands=[f"cp -r {SOURCE} {DESTINATION}"]
     )
 else:
     print("No effects on AzCopy downloading")
