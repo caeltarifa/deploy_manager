@@ -1,49 +1,42 @@
 #!/bin/bash
 
-NetworkConnection() {
+# Declare globals
+connection_name=""
+mac_address=""
+ip_address=""
+gateway=""
+dns_server=""
 
-    local connection_name="$1"
-    local mac_address="$2"
-    local ip_address="$3"
-    local gateway="$4"
-    local dns_server="$5"
+check_connection_exists() {
+    local result
+    result=$(nmcli con show | grep "$connection_name")
+    if [ "$result" ]; then
+        return 0 
+    else
+        return 1
+    fi
+}
 
-    check_connection_exists() {
-        local result=$(nmcli con show | grep "$connection_name")
-        if [ "$result" ]; then
-            return 0  # Connection exists
-        else
-            return 1  # Connection does not exist
-        fi
-    }
+create() {
+    if check_connection_exists; then
+        echo "Connection $connection_name already exists. Skipping..."
+        return
+    fi
 
-    create() {
-        # Check if the connection already exists
-        if $(check_connection_exists); then
-            echo "Connection $connection_name already exists. Skipping..."
-            return
-        fi
+    echo "Creating connection: $connection_name with MAC address $mac_address"
+    nmcli con add con-name "$connection_name" ifname "eno1" type ethernet ethernet.mac-address "$mac_address" ip4 "$ip_address" gw4 "$gateway"
 
-        # The connection
-        echo "Creating connection: $connection_name with MAC address $mac_address"
-        sudo nmcli con add con-name "$connection_name" ifname "eno3" mac "$mac_address" \
-            type ethernet ip4 "$ip_address" gw4 "$gateway"
+    echo "Setting DNS server for $connection_name: $dns_server"
+    nmcli con mod "$connection_name" ipv4.dns "$dns_server"
 
-        # Set DNS server
-        echo "Setting DNS server for $connection_name: $dns_server"
-        sudo nmcli con mod "$connection_name" ipv4.dns "$dns_server"
+    echo "Activating connection $connection_name..."
+    nmcli con up "$connection_name"
 
-        # Activate the connection
-        echo "Activating connection $connection_name..."
-        sudo nmcli con up "$connection_name"
-
-        # Check if the connection is successfully up
-        if nmcli con show --active | grep -q "$connection_name"; then
-            echo "Connection $connection_name is now active."
-        else
-            echo "Failed to activate connection $connection_name."
-        fi
-    }
+    if nmcli con show --active | grep -q "$connection_name"; then
+        echo "Connection $connection_name is now active."
+    else
+        echo "Failed to activate connection $connection_name."
+    fi
 }
 
 process_csv() {
@@ -51,19 +44,25 @@ process_csv() {
 
     {
         read  # Skip header
-        while IFS=',' read -r connection_name mac_address ip_address gateway dns_server; do
-            if [[ -z "$connection_name" || -z "$mac_address" || -z "$ip_address" || -z "$gateway" || -z "$dns_server" ]]; then
-                echo "Skipping invalid line: $connection_name, $mac_address, $ip_address, $gateway, $dns_server"
+        while IFS=';' read -r name mac ip gw dns _residual; do
+            if [[ -z "$name" || -z "$mac" || -z "$ip" || -z "$gw" || -z "$dns" ]]; then
+                echo "Skipping invalid line: $name, $mac, $ip, $gw, $dns"
                 continue
             fi
 
-            # Create an object of NetworkConnection and call its create method
-            connection=$(NetworkConnection "$connection_name" "$mac_address" "$ip_address" "$gateway" "$dns_server")
-            $connection create
+            connection_name="$name"
+            mac_address="$mac"
+            ip_address="$ip"
+            gateway="$gw"
+            dns_server="$dns"
+            create
+            echo ""
+            echo ""
         done
     } < "$csv_file"
 }
 
-# Main script execution
+# Main
 CSV_FILE="network_config.csv"
-process_csv "$CSV_FILE"
+echo "SEEKING FOR NETWORK INTERFACE"
+process_csv "/usr/local/bin/$CSV_FILE"

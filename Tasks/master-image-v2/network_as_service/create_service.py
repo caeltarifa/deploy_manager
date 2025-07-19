@@ -5,26 +5,47 @@ Task to deploy the network configuration script and systemd service to run on st
 """
 
 files.put(
-    src='network_config.csv',
+    src='Tasks/master-image-v2/network_as_service/network_config.csv',
     dest='/usr/local/bin/network_config.csv',  
-    sudo=True,
-    mode=0o755  
+    _sudo=True,
+    mode="755"  
 )
 
 files.put(
-    src='set_network.sh',
+    src='Tasks/master-image-v2/network_as_service/set_network.sh',
     dest='/usr/local/bin/set_network.sh',  
-    sudo=True,
-    mode=0o755  
+    _sudo=True,
+    mode="755"  
 )
 
 files.put(
-    src='set_network.service',
+    src='Tasks/master-image-v2/network_as_service/set_network.service',
     dest='/etc/systemd/system/set_network.service',
-    sudo=True
+    _sudo=True,
+    mode="777"  
 )
 
-server.shell('systemctl enable set_manual_network.service', sudo=True)
-server.shell('systemctl start set_manual_network.service', sudo=True)
+server.shell(
+    name="Realoading daemon",
+    commands=[
+        'systemctl daemon-reload', 
+    ],
+    _sudo=True
+)
+
+server.shell(
+    name="Enablign the network service",
+    commands=[
+        'systemctl enable set_network.service', 
+    ],
+    _sudo=True
+)
+server.shell(
+    name="Starting the network service",
+    commands=[
+    'systemctl start set_network.service'
+    ], 
+    _sudo=True
+    )
 
 print("Service 'set_network' deployed and started.")
