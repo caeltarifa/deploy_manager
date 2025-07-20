@@ -1,13 +1,14 @@
 [Unit]
-Description=Return to back Windows
-After=multi-user.target
-Requires=network.target
+Description=Time-Limited Turn_back_Win Service
+After=network.target
 
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/turn_back_win.sh
-TimeoutStartSec=0
-RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+# Ensure TimeoutStopSec is generous enough for the total duration + buffer
+TimeoutStopSec=15min
 
 [Install]
 WantedBy=multi-user.target
