@@ -1,4 +1,5 @@
 from pyinfra.operations import apt, files, server, systemd
+from io import StringIO
 
 class TigerVNCServerSetup:
     """
@@ -24,12 +25,17 @@ class TigerVNCServerSetup:
             update=True,
             present=True,
             _sudo=True,
-            name="Install TigerVNC packages",
         )
 
     def set_vnc_password(self):
         """Set the VNC password for the user."""
         # This will create a VNC password file for the user (in ~/.vnc/passwd)
+        files.directory(
+            name="Create .vnc directory",
+            path=f"/home/{self.vnc_user}/.vnc",
+            mode="0700",
+            #_sudo=True
+        )
         server.shell(
             name="Set VNC password",
             commands=[
@@ -37,7 +43,7 @@ class TigerVNCServerSetup:
                 f"chown {self.vnc_user}:{self.vnc_user} /home/{self.vnc_user}/.vnc/passwd",
                 f"chmod 0600 /home/{self.vnc_user}/.vnc/passwd"
             ],
-            sudo=True
+            _sudo=True
         )
 
     def configure_vnc_startup(self):
@@ -49,12 +55,12 @@ startxfce4 &
         """
 
         # Create the startup script in the user's home directory
-        files.write(
+        files.put(
             name="Create VNC startup script",
-            path=f"/home/{self.vnc_user}/.vnc/startup.sh",
-            content=startup_script,
+            src=StringIO(startup_script),
+            dest=f"/home/{self.vnc_user}/.vnc/startup.sh",
             mode="0755",
-            sudo=True
+            _sudo=True
         )
 
     def create_systemd_service(self):
@@ -77,20 +83,22 @@ WantedBy=multi-user.target
         """
         
         # Write the systemd service file
-        files.write(
+        files.put(
             name="Create TigerVNC systemd service",
-            path=f"/etc/systemd/system/vncserver@{self.vnc_display}.service",
-            content=service_content,
+            src=StringIO(service_content),
+            dest=f"/etc/systemd/system/vncserver@{self.vnc_display}.service",
             mode="0644",
-            sudo=True
+            _sudo=True
         )
 
     def enable_and_start_vnc_service(self):
         """Enable and start the VNC systemd service."""
-        systemd.systemd(
+        systemd.service(
             name=f"Enable and start VNC service for display {self.vnc_display}",
             service=f"vncserver@{self.vnc_display}.service",
+            daemon_reload=True,
+            restarted=True,
             enabled=True,
             running=True,
-            sudo=True
+            #_sudo=True
         )
