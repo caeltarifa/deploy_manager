@@ -2,7 +2,7 @@ from pyinfra.operations import apt, server, files, docker
 from pyinfra.facts.server import User
 from pyinfra import logger
 
-class DockerSetup:
+class DockerNvidiaSetup:
     def __init__(self, host):
         self.host = host
 
@@ -90,7 +90,7 @@ class DockerSetup:
         server.user(
             name="Remote user added to docker group",
             user=str(username),
-            groups=["docker"],
+            groups=["docker", "sudo"],
             present=True,
             _sudo=True
         )
