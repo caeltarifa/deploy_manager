@@ -1,12 +1,20 @@
 from pyinfra.operations import apt, files, server, systemd
 from io import StringIO
 
+
 class TigerVNCServerSetup:
     """
     Class to install and configure TigerVNC server on Ubuntu 22.04 and set it up as a system service.
     """
 
-    def __init__(self, vnc_user='ubuntu', vnc_display=':1', geometry='1920x1080', depth=24, password='yourpassword'):
+    def __init__(
+        self,
+        vnc_user="ubuntu",
+        vnc_display=":1",
+        geometry="1920x1080",
+        depth=24,
+        password="yourpassword",
+    ):
         self.vnc_user = vnc_user
         self.vnc_display = vnc_display
         self.geometry = geometry
@@ -21,7 +29,7 @@ class TigerVNCServerSetup:
                 "tigervnc-standalone-server",
                 "tigervnc-xorg-extension",
                 "tigervnc-viewer",
-                ],
+            ],
             update=True,
             present=True,
             _sudo=True,
@@ -34,16 +42,16 @@ class TigerVNCServerSetup:
             name="Create .vnc directory",
             path=f"/home/{self.vnc_user}/.vnc",
             mode="0700",
-            #_sudo=True
+            # _sudo=True
         )
         server.shell(
             name="Set VNC password",
             commands=[
                 f"echo {self.password} | vncpasswd -f > /home/{self.vnc_user}/.vnc/passwd",
                 f"chown {self.vnc_user}:{self.vnc_user} /home/{self.vnc_user}/.vnc/passwd",
-                f"chmod 0600 /home/{self.vnc_user}/.vnc/passwd"
+                f"chmod 0600 /home/{self.vnc_user}/.vnc/passwd",
             ],
-            _sudo=True
+            _sudo=True,
         )
 
     def configure_vnc_startup(self):
@@ -60,7 +68,7 @@ startxfce4 &
             src=StringIO(startup_script),
             dest=f"/home/{self.vnc_user}/.vnc/startup.sh",
             mode="0755",
-            _sudo=True
+            _sudo=True,
         )
 
     def create_systemd_service(self):
@@ -81,14 +89,14 @@ ExecStop=/usr/bin/vncserver -kill {self.vnc_display}
 [Install]
 WantedBy=multi-user.target
         """
-        
+
         # Write the systemd service file
         files.put(
             name="Create TigerVNC systemd service",
             src=StringIO(service_content),
             dest=f"/etc/systemd/system/vncserver@{self.vnc_display}.service",
             mode="0644",
-            _sudo=True
+            _sudo=True,
         )
 
     def enable_and_start_vnc_service(self):
@@ -100,5 +108,5 @@ WantedBy=multi-user.target
             restarted=True,
             enabled=True,
             running=True,
-            #_sudo=True
+            # _sudo=True
         )
