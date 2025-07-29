@@ -71,9 +71,9 @@ instance/
 # Sphinx documentation
 docs/_build/
 
-# PyBuilder
-.pybuilder/
-target/
+# PyBuilderDISK PARTITIONING
+.pybuilder/DISK PARTITIONING
+target/DISK PARTITIONING
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -208,3 +208,12 @@ __marimo__/
 
 # CSV
 *.csv
+
+# Azure stuff
+azure_files/*
+
+# Experimental stuff
+drafts/
+
+# Config assets
+Config/*
