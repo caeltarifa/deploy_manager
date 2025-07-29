@@ -1,10 +1,12 @@
 from pyinfra import host
 from pyinfra.operations import apt, systemd, ufw
 
+
 class SSHConfig:
     """
     A class to configure SSH server on an apt-based system using pyinfra.
     """
+
     def __init__(self, update_packages=True):
         self.update_packages = update_packages
 

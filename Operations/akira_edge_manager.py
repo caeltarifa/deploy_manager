@@ -1,6 +1,7 @@
 from pyinfra import host, logger
-from pyinfra.operations import docker, files,server, systemd
+from pyinfra.operations import docker, files, server, systemd
 from pyinfra.facts import server as server_facts
+
 
 class AkiraEdgeManager:
     """
@@ -8,17 +9,18 @@ class AkiraEdgeManager:
     """
 
     DOCKER_IMAGE_NAME = "p100x-app:latest"
-    DOCKERFILE_DIR = f"{host.get_fact(server_facts.Home, user='admin_sumato')}/akira-edge" # Use host.data.home to get user's home directory
+    DOCKERFILE_DIR = f"{host.get_fact(server_facts.Home, user='admin_sumato')}/akira-edge"  # Use host.data.home to get user's home directory
     DOCKERFILE_PATH = f"{DOCKERFILE_DIR}/Dockerfile"
 
-    
     def __init__(self):
         # Ensure Docker is installed (can be moved to a separate setup operation if preferred)
-        logger.info(f">>>>>>>>    This is the docker file path dir {self.DOCKERFILE_DIR}")
+        logger.info(
+            f">>>>>>>>    This is the docker file path dir {self.DOCKERFILE_DIR}"
+        )
         self._ensure_docker_installation()
 
     def _ensure_docker_installation(self):
-        
+
         check_docker_systemd = files.file(
             name="Check if Docker systemd service file exists",
             path="/lib/systemd/system/docker.service",
@@ -30,30 +32,38 @@ class AkiraEdgeManager:
                 name="Starting docker service",
                 service="docker",
                 running=True,
-                _sudo=True
-                #running=True, 
-                #reloaded=True,
-                #_if=remove_default_site.did_change,
+                _sudo=True,
+                # running=True,
+                # reloaded=True,
+                # _if=remove_default_site.did_change,
             )
 
     def build_image(self):
         """Builds the Docker image 'p100x-app:latest'."""
-        logger.info(f">>>>>>> Attempting to build Docker image '{self.DOCKER_IMAGE_NAME}'...")
+        logger.info(
+            f">>>>>>> Attempting to build Docker image '{self.DOCKER_IMAGE_NAME}'..."
+        )
 
         if files.file(self.DOCKERFILE_PATH):
             logger.info(f"Dockerfile found at '{self.DOCKERFILE_PATH}'.")
             logger.info(f"Navigating to '{self.DOCKERFILE_DIR}' and building image...")
-            #docker.build(
+            # docker.build(
             #    name=f"Build Docker image {self.DOCKER_IMAGE_NAME}",
             #    path=self.DOCKERFILE_DIR,
             #    tag=self.DOCKER_IMAGE_NAME,
             #    _sudo=False,
-            #)
+            # )
             server.shell(
                 name="Building the docker image.",
-                commands=[f"docker build -t {self.DOCKER_IMAGE_NAME} {self.DOCKERFILE_DIR}"],
+                commands=[
+                    f"docker build -t {self.DOCKER_IMAGE_NAME} {self.DOCKERFILE_DIR}"
+                ],
             )
-            print(f"Docker image '{self.DOCKER_IMAGE_NAME}' build operation initiated. Check logs for status.")
+            print(
+                f"Docker image '{self.DOCKER_IMAGE_NAME}' build operation initiated. Check logs for status."
+            )
+
+
 '''
     def _ensure_docker_installed(self):
         """Ensures Docker is installed on the host."""

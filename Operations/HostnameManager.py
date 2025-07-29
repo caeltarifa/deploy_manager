@@ -1,11 +1,12 @@
 from pyinfra.operations import files, server
 
+
 class HostnameManager:
     """
     A class that manages the system hostname by updating the /etc/hostname file
     and setting the runtime hostname.
     """
-    
+
     def __init__(self, hostname):
         self.hostname = hostname
 
@@ -27,6 +28,7 @@ class HostnameManager:
             hostname=self.hostname,
             sudo=True,
         )
+
 
 # Example usage:
 new_hostname = "NEW_CUSTOMIZED_HOSTNAME"
