@@ -1,49 +1,29 @@
-from pyinfra.operations import server, files
+from pathlib import Path
+
+from pyinfra.operations import files
+
+from Operations.DeployService import DeployService
+
+script_dir = Path(__file__).parent
+current_script_dir = Path(__file__).parent
+proj_root = current_script_dir.parent
 
 """
-Task to deploy the network configuration script and systemd service to run on startup.
+Deploy the on-startup network configuration script and systemd service.
 """
+
+script = str((proj_root / "Resources/set_network.sh").absolute())
+service_src = str((proj_root / "Resources/set_network.service").absolute())
+net_config_file = str((proj_root / "Resources/network_config.csv").absolute())
 
 files.put(
-    src="Tasks/master-image-v2/network_as_service/network_config.csv",
+    name="Placing network conf file onto /usr/local/bin",
+    src=net_config_file,
     dest="/usr/local/bin/network_config.csv",
     _sudo=True,
     mode="755",
+    force=True,
 )
 
-files.put(
-    src="Tasks/master-image-v2/network_as_service/set_network.sh",
-    dest="/usr/local/bin/set_network.sh",
-    _sudo=True,
-    mode="755",
-)
-
-files.put(
-    src="Tasks/master-image-v2/network_as_service/set_network.service",
-    dest="/etc/systemd/system/set_network.service",
-    _sudo=True,
-    mode="777",
-)
-
-server.shell(
-    name="Realoading daemon",
-    commands=[
-        "systemctl daemon-reload",
-    ],
-    _sudo=True,
-)
-
-server.shell(
-    name="Enablign the network service",
-    commands=[
-        "systemctl enable set_network.service",
-    ],
-    _sudo=True,
-)
-server.shell(
-    name="Starting the network service",
-    commands=["systemctl start set_network.service"],
-    _sudo=True,
-)
-
-print("Service 'set_network' deployed and started.")
+ip_automation = DeployService(shellFileSrc=script, serviceFileSrc=service_src)
+ip_automation.deploy()
