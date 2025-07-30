@@ -9,6 +9,8 @@ MAX_CHECK_ITERATIONS=$((TOTAL_TIMEOUT_SECONDS / CHECK_INTERVAL_SECONDS))
 echo "$SERVICE_NAME" "Detonator service started. Awaiting BUTT_OFF for $((TOTAL_TIMEOUT_SECONDS / 60)) minutes."
 echo ""
 
+mount /dev/sda1 /mnt/esp
+
 REBOOT_INITIATED=false 
 CURRENT_ITERATION=0    
 
@@ -29,14 +31,16 @@ while [ "$CURRENT_ITERATION" -lt "$MAX_CHECK_ITERATIONS" ]; do
 done
 
 if [ ! -f "$BUTT_OFF_FILE" ]; then
-    echo "$SERVICE_NAME" "Timeout reached ($((TOTAL_TIMEOUT_SECONDS / 60)) minutes). BUTT_OFF not found. Initiating reboot."
+    echo "$SERVICE_NAME" "Timeout reached ($((TOTAL_TIMEOUT_SECONDS / 60)) minutes). BUTT_OFF not found. Initiating turning back to Windows."
+    cp -r /mnt/esp/EFI/refind/refind_towin.conf /mnt/esp/EFI/refind/refind.conf
     REBOOT_INITIATED=true
     sleep 5
     sudo /sbin/reboot
 fi
 
 if [ "$REBOOT_INITIATED" = false ]; then
-    echo "$SERVICE_NAME" "Disabling and stopping service as its task is complete without direct reboot."
+    echo "$SERVICE_NAME" "BUTT_OFF found. Disabling and stopping service as its task is complete without direct reboot."
+    cp -r /mnt/esp/EFI/refind/refind_tolnx.conf /mnt/esp/EFI/refind/refind.conf
     sudo systemctl disable "$SERVICE_NAME"
     sudo systemctl stop "$SERVICE_NAME"
 fi

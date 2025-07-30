@@ -1,17 +1,18 @@
-from pyinfra.operations import files, systemd
 from pyinfra import logger
+from pyinfra.operations import files, systemd
 
 
 class DeployService:
     """
-    A class to deploy the panic switch script and systemd service to run on startup.
+    A class to deploy the panic switch script and systemd service.
     """
 
     def __init__(self, shellFileSrc: str, serviceFileSrc: str):
         self.shellFileSrc = shellFileSrc
         self.serviceFileSrc = serviceFileSrc
         self.shellFileDest = f"/usr/local/bin/{shellFileSrc.split('/')[-1]}"
-        self.serviceFileDest = f"/etc/systemd/system/{serviceFileSrc.split('/')[-1]}"
+        serviceFileName = serviceFileSrc.split("/")[-1]
+        self.serviceFileDest = f"/etc/systemd/system/{serviceFileName}"
         pass
 
     def deploy(self):
@@ -24,6 +25,7 @@ class DeployService:
             src=self.shellFileSrc,
             dest=self.shellFileDest,
             mode="755",
+            force=True,
             _sudo=True,
         )
 
@@ -32,6 +34,7 @@ class DeployService:
             src=self.serviceFileSrc,
             dest=self.serviceFileDest,
             mode="755",
+            force=True,
             _sudo=True,
         )
 

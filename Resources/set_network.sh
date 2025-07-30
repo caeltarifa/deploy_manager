@@ -24,7 +24,7 @@ create() {
     fi
 
     echo "Creating connection: $connection_name with MAC address $mac_address"
-    nmcli con add con-name "$connection_name" ifname "eno1" type ethernet ethernet.mac-address "$mac_address" ip4 "$ip_address" gw4 "$gateway"
+    nmcli con add con-name "$connection_name" ifname "$iface" type ethernet ethernet.mac-address "$mac_address" ip4 "$ip_address" gw4 "$gateway"
 
     echo "Setting DNS server for $connection_name: $dns_server"
     nmcli con mod "$connection_name" ipv4.dns "$dns_server"
@@ -43,18 +43,25 @@ process_csv() {
     local csv_file="$1"
 
     {
+        for conn in $(nmcli -t -f NAME con show | grep -E ".*-eno.*"); do
+            sudo nmcli con delete "$conn"
+        done
+
         read  # Skip header
-        while IFS=';' read -r name mac ip gw dns _residual; do
+        while IFS=';' read -r name mac ip gw dns iface _residual; do
             if [[ -z "$name" || -z "$mac" || -z "$ip" || -z "$gw" || -z "$dns" ]]; then
-                echo "Skipping invalid line: $name, $mac, $ip, $gw, $dns"
+                echo "Skipping invalid line: $name, $mac, $ip, $gw, $dns, $iface"
                 continue
             fi
+
+            echo "Processing: name=$name, mac=$mac, ip=$ip, gw=$gw, dns=$dns, iface=$iface"
 
             connection_name="$name"
             mac_address="$mac"
             ip_address="$ip"
             gateway="$gw"
             dns_server="$dns"
+            iface="$iface"
             create
             echo ""
             echo ""

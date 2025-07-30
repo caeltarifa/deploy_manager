@@ -9,13 +9,13 @@ IPADDR=$(ip -4 a | awk '/inet /{print "Interface: " $NF ", IP: " $2}' | sed 's/\
 
 TEXT_COLOR="white"
 FONT="DejaVu-Sans"
-POINT_SIZE=70
+POINT_SIZE=20
 
 convert "$ORIGINAL" \
   -gravity SouthEast \
   -pointsize $POINT_SIZE -fill $TEXT_COLOR -font $FONT \
-  -annotate +70+180 "$IPADDR" \
-  -annotate +70+100 "Hostname: $HOSTNAME" \
+  -annotate +90+130 "$IPADDR" \
+  -annotate +90+100 "Hostname: $HOSTNAME" \
   "$OUTPUT"
 
 sudo -u "$USER" bash -c "
