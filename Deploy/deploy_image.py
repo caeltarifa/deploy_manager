@@ -1,5 +1,5 @@
 from pyinfra import host
-from pyinfra.operations import files, windows_files, server
+from pyinfra.operations import files, server
 
 IMAGE_NAME = "p100x-app:2.0.0"
 TAR_FILENAME = f"{IMAGE_NAME.replace(':', '_')}.tar"
@@ -40,7 +40,7 @@ server.shell(
 
 # --- Clean up the tar file to save disk space ---
 print(f"Cleaning up tar file on {host.name}...")
-windows_files.file(
+files.file(
     name=f"Remove {TAR_FILENAME}",
     path=f"/tmp/{TAR_FILENAME}",
     present=False,
