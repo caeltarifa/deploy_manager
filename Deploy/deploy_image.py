@@ -1,8 +1,10 @@
+import os
 from pyinfra import host
 from pyinfra.operations import files, server
 
 IMAGE_NAME = "p100x-app:2.0.0"
 TAR_FILENAME = f"{IMAGE_NAME.replace(':', '_')}.tar"
+TAR_PATH = os.path.join("/tmp", TAR_FILENAME)
 
 ALL_HOSTS = [
     "110.34.35.16", #Cond
@@ -27,22 +29,22 @@ for remote_host_name in ALL_HOSTS:
     if remote_host_name != host.name:
         files.put(
             name=f"Push {IMAGE_NAME} to {remote_host_name}",
-            src=f"/tmp/{TAR_FILENAME}",
-            dest=f"/tmp/{TAR_FILENAME}",
+            src=TAR_PATH,
+            dest=TAR_PATH,
             _sudo=True
         )
 
 # --- Load the image on all hosts ---
 server.shell(
     name=f"Load {IMAGE_NAME} from {TAR_FILENAME}",
-    commands=[f"docker load -i /tmp/{TAR_FILENAME} "]
+    commands=[f"docker load -i {TAR_PATH} "]
 )
 
 # --- Clean up the tar file to save disk space ---
 print(f"Cleaning up tar file on {host.name}...")
 files.file(
     name=f"Remove {TAR_FILENAME}",
-    path=f"/tmp/{TAR_FILENAME}",
+    path=TAR_PATH,
     present=False,
     _sudo=True
 )
