@@ -18,11 +18,10 @@ ALL_HOSTS = [
 ]
 
 # --- Save the Docker image to a .tar file on the current host ---
-if host.name in ALL_HOSTS: 
-    server.shell(
-        name=f"Save {IMAGE_NAME} to {TAR_FILENAME}",
-        commands=[f"docker save -o /tmp/{TAR_FILENAME} {IMAGE_NAME}"]
-    )
+server.shell(
+    name=f"Save {IMAGE_NAME} to {TAR_FILENAME}",
+    commands=[f"docker save -o /tmp/{TAR_FILENAME} {IMAGE_NAME}"]
+)
 
 # --- Push the .tar file to all other hosts  ---
 for remote_host_name in ALL_HOSTS:
