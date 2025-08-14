@@ -72,4 +72,5 @@ process_csv() {
 # Main
 CSV_FILE="network_config.csv"
 echo "SEEKING FOR NETWORK INTERFACE"
+sleep 300
 process_csv "/usr/local/bin/$CSV_FILE"
