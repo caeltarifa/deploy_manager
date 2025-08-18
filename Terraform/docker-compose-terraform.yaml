@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  terraform:
+    image: hashicorp/terraform:1.12
+    container_name: terraform-local-cli
+    volumes:
+      - type: bind
+        source: ./environments
+        target: /Terraform/environments
+      - type: bind
+        source: ./modules
+        target: /Terraform/modules
+    working_dir: /Terraform
+    command: sh
