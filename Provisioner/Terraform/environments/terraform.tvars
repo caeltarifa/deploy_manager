@@ -1,0 +1,16 @@
+iothub_name         = "AkiraHub"
+resource_group_name = "akira-production-rg"
+location            = "East US"
+
+iot_edge_devices = {
+  "EdgeDevice01" = {
+    custom_modules = ["SimulatedTemperatureSensor"]
+  }
+  "EdgeDevice02" = {
+    custom_modules = ["MyCustomModuleA", "MyCustomModuleB"]
+  }
+  "EdgeDevice03" = {
+    custom_modules = ["CameraModule"]
+  }
+  # All 15 devices here.
+}
