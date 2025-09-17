@@ -1,0 +1,13 @@
+[Unit]
+Description=Dynamic Wallpaper with Hostname and IP Overlay
+After=graphical-session.target network-online.target
+Wants=network-online.target 
+
+[Service]
+ExecStart=/usr/local/bin/dynamic_wallpaper.sh
+Restart=on-failure
+User=root
+Type=oneshot
+
+[Install]
+WantedBy=graphical-session.target
