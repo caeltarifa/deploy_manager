@@ -1,15 +1,16 @@
-from pyinfra.operations import apt, files, systemd
+from pyinfra.operations import apt, files, systemd, server
 from dotenv import load_dotenv
+from pyinfra import host
 from pathlib import Path
 import os
 
-from Operations.TigerVNCServerSetup import TigerVNCServerSetup
 from Operations.DeployService import DeployService
+from Operations.TigerVNCServerSetup import TigerVNCServerSetup
+from Operations.DockerNvidiaSetup import DockerNvidiaSetup
 
 script_dir = Path(__file__).parent
 current_script_dir = Path(__file__).parent
 project_root = current_script_dir.parent
-
 
 def vnc_credentials():
     """
@@ -27,9 +28,7 @@ def vnc_credentials():
         print(f"Error loading VNC password: {e}")
         return None
 
-
 HOST_USER, VNC_PASSWORD = vnc_credentials()
-
 
 ### TigerVNC Server Setup
 def vnc_configuration(tiger_vnc):
@@ -40,7 +39,6 @@ def vnc_configuration(tiger_vnc):
     # tiger_vnc.create_systemd_service()
     # tiger_vnc.enable_and_start_vnc_service()
 
-
 tiger_vnc = TigerVNCServerSetup(
     vnc_user=HOST_USER,
     vnc_display=":1",
@@ -49,7 +47,6 @@ tiger_vnc = TigerVNCServerSetup(
     password=VNC_PASSWORD,
 )
 vnc_configuration(tiger_vnc)
-
 
 ### Switch-panic service
 script = str((project_root / "Resources/turn_back_win.sh").absolute())
@@ -83,4 +80,18 @@ wallpaper_service = DeployService(
 )
 wallpaper_service.deploy()
 
-# assert False, f"DEBUGGING 'script' value: Type={type(script)}, Value='{script}'"
+docker_setup = DockerNvidiaSetup(host)
+
+"""Run all Docker and NVIDIA setup tasks in order."""
+docker_setup.install_necessary_packages()
+docker_setup.add_docker_gpg_key()
+docker_setup.add_docker_repo()
+apt.packages(name="Package update", latest=True)
+docker_setup.install_docker_packages()
+docker_setup.add_user_docker_group()
+
+docker_setup.install_nvidia_driver()
+
+docker_setup.install_nvidia_container_toolkit()
+
+server.shell(name="A reboot is compulsory", commands=['echo "Reboot is a must"'])
