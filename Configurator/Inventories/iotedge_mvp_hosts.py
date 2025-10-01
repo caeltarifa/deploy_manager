@@ -1,5 +1,9 @@
 import os
+
 from dotenv import load_dotenv
+from pyinfra import config
+
+config.SUDO = True
 
 load_dotenv(dotenv_path=".env_iothub_deploy")
 
@@ -19,7 +23,9 @@ for host in hosts:
     connection_string = os.getenv(env_key)
 
     if not connection_string:
-        raise ValueError(f"Missing connection string in .env_iothub_deploy for host {host} ({env_key})")
+        raise ValueError(
+            f"No Conn String .env_iothub_deploy for host {host} ({env_key})"
+        )
 
     data = {
         "connection_string": connection_string,
