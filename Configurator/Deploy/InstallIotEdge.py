@@ -1,48 +1,45 @@
-from pyinfra import host
-from pyinfra.operations import apt, files, systemd, server
+from pyinfra.operations import apt, server, systemd
 
-apt.packages(
-    name="Install prerequisites",
-    packages=["wget", "curl", "gnupg"],
-    update=True
-)
+apt.packages(name="Prereqs", packages=["wget", "curl", "gnupg"], update=True)
 
+mst_repo1 = "https://packages.microsoft.com/config/ubuntu/22.04/"
+mst_repo2 = "packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb"
 server.shell(
     name="Add Microsoft APT repo",
     commands=[
-        "wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb",
+        f"wget {mst_repo1}{mst_repo2}",
         "dpkg -i /tmp/packages-microsoft-prod.deb",
         "rm /tmp/packages-microsoft-prod.deb",
-        "apt update"
-    ]
+        "apt update",
+    ],
 )
 
 apt.packages(
     name="Install aziot-edge and moby",
-    packages=["aziot-edge", "moby-engine", "moby-cli"]
+    packages=["aziot-edge", "moby-engine", "moby-cli"],
 )
 
 server.shell(
-    name="Provision IoT Edge with connection string",
+    name="Check if IoT Edge is already provisioned",
     commands=[
-        f"iotedge config mp --connection-string '{host.data.connection_string}'"
-    ]
+        """
+if iotedge list >/dev/null 2>&1; then
+    echo "Already provisioned. Skipping."
+else
+    iotedge config mp --connection-string '{host.data.connection_string}'
+fi
+        """
+    ],
 )
 
-server.shell(
-    name="Apply IoT Edge config",
-    commands=["iotedge config apply"]
-)
+server.shell(name="Apply IoT Edge config", commands=["iotedge config apply"])
 
 systemd.service(
     name="Start iotedge service",
-    service="iotedge",
+    service="aziot-edged",
     enabled=True,
     running=True,
-    restarted=True
+    restarted=True,
 )
 
-server.shell(
-    name="Check iotedge status",
-    commands=["iotedge system status"]
-)
+server.shell(name="Check iotedge status", commands=["iotedge system status"])
