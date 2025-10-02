@@ -37,13 +37,12 @@ remove_conflicting_time_services() {
 }
 
 # 2.1.2.1 Ensure chrony is configured with authorized timeserver
-NTP_SOURCES=("cl.pool.ntp.org")
+NTP_SOURCES=("cl.pool.ntp.org", "ntp.balint.falabella.cl")
 configure_chrony() {
   log "2.1.2.1 - Configuring chrony with authorized time server..."
   [[ -f /etc/chrony/chrony.conf ]] && cp -a /etc/chrony/chrony.conf "$BACKUP_DIR/chrony.conf.bak" || true
 
   if ! grep -q '^# hardening: applied$' /etc/chrony/chrony.conf 2>/dev/null; then
-    # Comment any existing server/pool lines only once
     sed -Ei 's/^[[:space:]]*(server|pool)[[:space:]].*$/# &/g' /etc/chrony/chrony.conf || true
     {
       echo '# hardening: applied'
@@ -156,14 +155,125 @@ enable_ntp() {
 }
 
 postcheck() {
-  log "Post-check: timedatectl"
-  timedatectl || true
-  if command -v chronyc >/dev/null 2>&1; then
-    log "Post-check: chronyc tracking"
-    chronyc tracking || true
-    log "Post-check: chronyc sources"
-    chronyc -n sources || true
+  log "Post-checking time synchronization (CIS 2.1.x)..."
+
+  _active(){ systemctl is-active --quiet "$1" 2>/dev/null; }
+  _enabled(){ [ "$(systemctl is-enabled "$1" 2>/dev/null || true)" = "enabled" ]; }
+
+  local act=()
+  _active chrony                && act+=("chrony")
+  _active systemd-timesyncd     && act+=("systemd-timesyncd")
+  _active ntp                   && act+=("ntp")
+
+  if [ "${#act[@]}" -eq 1 ]; then
+    log "2.1.1.1 - PASS: single time sync daemon in use: ${act[0]}."
+  else
+    log "2.1.1.1 - FAIL: expected a single daemon, found: ${act[*]:-none}."
   fi
+
+  if _active chrony; then
+    # 2.1.2.1 chrony configured with authorized timeserver
+    local miss=0 s cfg=/etc/chrony/chrony.conf
+    for s in "${NTP_SOURCES[@]}"; do
+      grep -Eq "^[[:space:]]*(server|pool)[[:space:]]+$s(\s|$)" "$cfg" 2>/dev/null || { miss=1; }
+    done
+    if [ $miss -eq 0 ]; then
+      log "2.1.2.1 - PASS: chrony uses authorized server(s): ${NTP_SOURCES[*]}."
+    else
+      log "2.1.2.1 - FAIL: chrony.conf missing one or more authorized server lines."
+    fi
+
+    local cu
+    cu="$(ps -o user= -C chronyd 2>/dev/null | sort -u | tr '\n' ' ')"
+    if echo " $cu " | grep -q " _chrony "; then
+      log "2.1.2.2 - PASS: chronyd runs as _chrony."
+    else
+      log "2.1.2.2 - FAIL: chronyd not running as _chrony (users: ${cu:-none})."
+    fi
+
+    if _enabled chrony && _active chrony; then
+      log "2.1.2.3 - PASS: chrony is enabled and active."
+    else
+      log "2.1.2.3 - FAIL: chrony not enabled and/or not active."
+    fi
+
+    # Useful telemetry (non-gating)
+    log "   chronyc tracking:"
+    chronyc tracking 2>/dev/null || true
+    log "   chronyc sources (numeric):"
+    chronyc -n sources 2>/dev/null || true
+  else
+    log "2.1.2.1 - SKIP: chrony not in use."
+    log "2.1.2.2 - SKIP: chrony not in use."
+    log "2.1.2.3 - SKIP: chrony not in use."
+  fi
+
+  # ---------- systemd-timesyncd track (2.1.3.x) ----------
+  if _active systemd-timesyncd; then
+    # 2.1.3.1 timesyncd configured with authorized timeserver
+    local cfg=/etc/systemd/timesyncd.conf ok_ntp=0 s
+    if [ -f "$cfg" ]; then
+      for s in "${NTP_SOURCES[@]}"; do
+        grep -Eq "^[[:space:]]*NTP=.*\b$s(\s|$)" "$cfg" && ok_ntp=1
+      done
+    fi
+    [ $ok_ntp -eq 1 ] \
+      && log "2.1.3.1 - PASS: timesyncd NTP includes authorized server(s)." \
+      || log "2.1.3.1 - FAIL: timesyncd NTP not set to authorized server(s)."
+
+    # 2.1.3.2 timesyncd enabled and running
+    if _enabled systemd-timesyncd && _active systemd-timesyncd; then
+      log "2.1.3.2 - PASS: systemd-timesyncd is enabled and active."
+    else
+      log "2.1.3.2 - FAIL: systemd-timesyncd not enabled and/or not active."
+    fi
+  else
+    log "2.1.3.1 - SKIP: systemd-timesyncd not in use."
+    log "2.1.3.2 - SKIP: systemd-timesyncd not in use."
+  fi
+
+  # ---------- ntp track (2.1.4.x) ----------
+  if _active ntp; then
+    local ntpc=/etc/ntp.conf ok_restrict=0 ok_servers=1 s
+    # 2.1.4.1 restrict -4/-6 present
+    if grep -Eq '^[[:space:]]*restrict[[:space:]]+-4[[:space:]]+default' "$ntpc" 2>/dev/null \
+       && grep -Eq '^[[:space:]]*restrict[[:space:]]+-6[[:space:]]+default' "$ntpc" 2>/dev/null; then
+      ok_restrict=1
+    fi
+    [ $ok_restrict -eq 1 ] \
+      && log "2.1.4.1 - PASS: ntp access restrictions (-4/-6) present." \
+      || log "2.1.4.1 - FAIL: ntp access restrictions (-4/-6) missing."
+
+    for s in "${NTP_SOURCES[@]}"; do
+      grep -Eq "^[[:space:]]*server[[:space:]]+$s(\s|$)" "$ntpc" 2>/dev/null || { ok_servers=0; }
+    done
+    [ $ok_servers -eq 1 ] \
+      && log "2.1.4.2 - PASS: ntp uses authorized server(s): ${NTP_SOURCES[*]}." \
+      || log "2.1.4.2 - FAIL: ntp.conf missing authorized server lines."
+
+    local nu
+    nu="$(ps -o user= -C ntpd 2>/dev/null | sort -u | tr '\n' ' ')"
+    if echo " $nu " | grep -q " ntp "; then
+      log "2.1.4.3 - PASS: ntpd runs as user 'ntp'."
+    else
+      log "2.1.4.3 - FAIL: ntpd not running as user 'ntp' (users: ${nu:-none})."
+    fi
+
+    # 2.1.4.4 ntp enabled and running
+    if _enabled ntp && _active ntp; then
+      log "2.1.4.4 - PASS: ntp is enabled and active."
+    else
+      log "2.1.4.4 - FAIL: ntp not enabled and/or not active."
+    fi
+  else
+    log "2.1.4.1 - SKIP: ntp not in use."
+    log "2.1.4.2 - SKIP: ntp not in use."
+    log "2.1.4.3 - SKIP: ntp not in use."
+    log "2.1.4.4 - SKIP: ntp not in use."
+  fi
+
+  log "Timedatectl summary:"
+  timedatectl 2>/dev/null || true
 }
 
 main() {

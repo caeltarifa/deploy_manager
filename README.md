@@ -35,9 +35,25 @@ Open the terminal and install Pyinfra.
 
 This project has three main parts to keep things tidy:
 
-1.  **`inventory.py`**: This file is like your address book for servers. You list all the servers you want to manage (their names, IP addresses, how to connect).
-2.  **`operations/` folder**: This folder contains small, reusable "recipes" (Python files) for single actions.
-3.  **`tasks/` folder**: This folder contains "playbooks" (Python files) that put together multiple "recipes" to achieve a bigger goal.
+#### **`Configurator/`**
+The configuration files are based on **Pyinfra playbooks**  and they are served as:
+
+1.  **`Inventory/`** Categorizes address book for servers purpose.
+    
+2.  **`Operations/`** Contains small, reusable Python files for single actions, "recipes".
+
+3.  **`Deploy/`**: This folder contains "Python playbooks" that put together multiple "recipes" to achieve a bigger goal.
+
+4.  **`Templates/`** Store bash/shell scripts that are called from whether **`Deploy`** or **`Operations`**.
+
+5.  **`Resources/`** Provides env variable file, image, network, DB, and configurations, that get retrieved from AzureClouds.
+
+#### **`Ochestrator/`**
+**Docker**, **Kubernetes**, and **IoTHub** at the core for deploy automation.
+
+#### **`Provisioner/`**
+Cloud infrastructure and service consumption by **Terraform**.
+
 
 ## What it Does
 
