@@ -59,3 +59,29 @@ files.file(
 apt.update(name="Update apt after adding HashiCorp repo", _sudo=True)
 
 apt.packages(name="Install Terraform", packages=["terraform"], _sudo=True)
+
+# Install Terraformer
+PROVIDER = "all"
+FILENAME = f"terraformer-{PROVIDER}-linux-amd64"
+TMP_PATH = f"/tmp/{FILENAME}"
+BIN_PATH = "/usr/local/bin/terraformer"
+
+server.shell(
+    name="Download latest Terraformer binary",
+    commands=[
+        "LATEST=$(curl -s https://api.github.com/repos/"
+        "GoogleCloudPlatform/terraformer/releases/latest | "
+        "grep tag_name | cut -d '\"' -f 4)",
+        f"curl -Lo {TMP_PATH} "
+        '"https://github.com/GoogleCloudPlatform/terraformer/releases/'
+        "download/${LATEST}/" + FILENAME + '"',
+    ],
+)
+
+server.shell(name="Terraformer executable", commands=[f"chmod +x {TMP_PATH}"])
+
+server.shell(
+    name="Move Terraformer to /usr/local/bin",
+    commands=[f"mv {TMP_PATH} {BIN_PATH}"],
+    _sudo=True,
+)
