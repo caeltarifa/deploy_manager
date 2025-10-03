@@ -62,8 +62,9 @@ disable_apport() {
 
 # 1.9 Ensure updates and patches are installed
 install_updates() {
-    log "1.9 Updating packages..."
+    log "1.9 Updating packages, patches, fail2ban"
     apt-get update
+    apt-get install fail2ban ufw clamav -y
 }
 
 postchecking(){
