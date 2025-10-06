@@ -224,4 +224,5 @@ Config/*
 
 # Terraform state and plan files
 *.tfstate
+*.tfstate.*
 tfplan*
