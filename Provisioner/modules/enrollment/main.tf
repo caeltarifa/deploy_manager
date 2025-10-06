@@ -16,35 +16,38 @@ resource "null_resource" "enroll_device" {
 
   provisioner "local-exec" {
     command = <<EOT
-      az iot hub device-identity create \
-        --device-id ${each.key} \
-        --hub-name ${var.iot_hub_name} \
-        --edge-enabled true \
-        --auth-method "shared_private_key" \
-        --primary-key ${var.device_password} \
-        --secondary-key ${var.device_password} \
-        --auth-type key \
-        --status enabled \
-        --valid-days 250
+      if ! az iot hub device-identity show --device-id ${each.key} --hub-name ${var.iot_hub_name} > /dev/null 2>&1; then
+        az iot hub device-identity create \
+          --device-id ${each.key} \
+          --hub-name ${var.iot_hub_name} \
+          --edge-enabled true \
+          --auth-method "shared_private_key" \
+          --primary-key ${var.device_password} \
+          --secondary-key ${var.device_password} \
+          --auth-type key \
+          --status enabled \
+          --valid-days 250
+      else
+        echo "Device ${each.key} already exists in IoT Hub ${var.iot_hub_name}"
+      fi
     EOT
   }
 }
 
-# TODO: TAGGING AFTER EDGE DEVICE CREATION
-# resource "null_resource" "update_device_twin" {
-#   for_each = toset(var.device_ids)
-# 
-#   depends_on = [
-#     null_resource.enroll_device[each.key]
-#   ]
-# 
-#   provisioner "local-exec" {
-#     command = <<EOT
-#       az iot hub device-twin update \
-#         --device-id ${each.key} \
-#         --hub-name ${var.iot_hub_name} \
-#         --set tags.environment="${var.environment_tag}" tags.client="${var.client_tag}"
-#     EOT
-#   }
-# }
+resource "null_resource" "update_device_twin" {
+  for_each = toset(var.device_ids)
+
+  depends_on = [
+    null_resource.enroll_device
+  ]
+
+  provisioner "local-exec" {
+    command = <<EOT
+      az iot hub device-twin update \
+        --device-id ${each.key} \
+        --hub-name ${var.iot_hub_name} \
+        --tags "{\"environment\": \"${var.environment_tag}\", \"client\": \"${var.client_tag}\"}"
+    EOT
+  }
+}
 

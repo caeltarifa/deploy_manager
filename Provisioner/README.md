@@ -17,26 +17,22 @@ Automates deployment of Azure IoT Hub, Device Provisioning Service (DPS), and de
      ```sh
      pyinfra @local configurator/deploy/terraform_installation.py
      ```
-   - Azure CLI & Azure subscription
-
-2. **Configure**  
-   - Set variables in `.env_provisioner`
-   - Target IoT Edge device names in `terraform.tfvars`
-
-3. **Authenticate**
+   - Azure CLI auth & Azure subscription
    ```sh
    az login
    az account set --subscription <your-subscription-id>
    ```
 
-4. **Import Existing IoT Hub**  
+2. **Configure**  
+   - Set variables in `.env_provisioner`
+   - Target IoT Edge device names in `terraform.tfvars`
+
+3. **Import Existing IoT Hub**  
    Track the state of existing IoT Hub into Terraform state **from the `Provisioner` directory**:
    ```sh
    terraform import 'module.iothub.azurerm_iothub.prod_iothub' '/subscriptions/<idsubscription>/resourceGroups/<resource-group>/providers/Microsoft.Devices/iotHubs/<iothub-name>'
-
-   terraform import 'module.iothub.azurerm_iothub_shared_access_policy.iothub_policy' '/subscriptions/3afcc1cb-f7be-4465-a339-5dd7aac43801/resourceGroups/akira-production-rg/providers/Microsoft.Devices/iotHubs/AkiraHubProd/iothubowner'
    ```
-5. **TODO: Recovery strategy into cloud-org-backup/**
+4. **TODO: Recovery strategy into cloud-org-backup/**
    ```sh
    mkdir -p ~/.terraform.d/plugins/linux_amd64
    terraformer import azure --resources iothub --resource-group akira-production-rg --filter="Name=AkiraHubProd"
@@ -52,7 +48,7 @@ Automates deployment of Azure IoT Hub, Device Provisioning Service (DPS), and de
    ```sh
    export $(grep -v '^#' .env_provisioner | xargs)
    terraform init
-   terraform plan -var-file="terraform.tfvars" -out="tfplan_production_$(date +%F-%H%M)"
+   terraform plan -var-file="<client_device_names>.tfvars" -out="tfplan_production_$(date +%F-%H%M)"
    terraform apply tfplan_production_<datetime>
    ```
 
