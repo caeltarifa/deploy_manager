@@ -1,8 +1,8 @@
-# Azure IoT Hub & DPS Terraform Provisioner
+# Azure IoT Hub & IoT Edge Terraform Provisioner
 
 ## Purpose
 
-Automates deployment of Azure IoT Hub, Device Provisioning Service (DPS), and device enrollment using Terraform and Azure CLI.
+Automates deployment of Azure IoT Hub, IoT edge Device Provisioning and enrollment, using Terraform and Azure CLI.
 
 ## Pattern
 
@@ -18,14 +18,15 @@ Automates deployment of Azure IoT Hub, Device Provisioning Service (DPS), and de
      pyinfra @local configurator/deploy/terraform_installation.py
      ```
    - Azure CLI auth & Azure subscription
-   ```sh
-   az login
-   az account set --subscription <your-subscription-id>
-   ```
+      ```sh
+      az login
+      az account set --subscription <your-subscription-id>
+      ```
+   - Download `.env_provisioner` file
 
 2. **Configure**  
    - Set variables in `.env_provisioner`
-   - Target IoT Edge device names in `terraform.tfvars`
+   - Target IoT Edge device names in `<device-client-list>.tfvars`
 
 3. **Import Existing IoT Hub**  
    Track the state of existing IoT Hub into Terraform state **from the `Provisioner` directory**:
@@ -48,7 +49,7 @@ Automates deployment of Azure IoT Hub, Device Provisioning Service (DPS), and de
    ```sh
    export $(grep -v '^#' .env_provisioner | xargs)
    terraform init
-   terraform plan -var-file="<client_device_names>.tfvars" -out="tfplan_production_$(date +%F-%H%M)"
+   terraform plan -var-file="<device-client-list>.tfvars" -out="tfplan_production_$(date +%F-%H%M)"
    terraform apply tfplan_production_<datetime>
    ```
 
