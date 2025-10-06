@@ -217,3 +217,13 @@ drafts/
 
 # Config assets
 Config/*
+
+# Terraform directories
+.terraform/
+.terraform.lock.hcl
+
+# Terraform state and plan files
+*.tfstate
+*.tfstate.*
+tfplan*
+*.tfvars
