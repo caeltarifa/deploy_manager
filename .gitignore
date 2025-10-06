@@ -226,3 +226,4 @@ Config/*
 *.tfstate
 *.tfstate.*
 tfplan*
+*.tfvars
