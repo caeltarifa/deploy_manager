@@ -32,16 +32,27 @@ Automates deployment of Azure IoT Hub, Device Provisioning Service (DPS), and de
 4. **Import Existing IoT Hub**  
    Track the state of existing IoT Hub into Terraform state **from the `Provisioner` directory**:
    ```sh
+   terraform import 'module.iothub.azurerm_iothub.prod_iothub' '/subscriptions/<idsubscription>/resourceGroups/<resource-group>/providers/Microsoft.Devices/iotHubs/<iothub-name>'
+
+   terraform import 'module.iothub.azurerm_iothub_shared_access_policy.iothub_policy' '/subscriptions/3afcc1cb-f7be-4465-a339-5dd7aac43801/resourceGroups/akira-production-rg/providers/Microsoft.Devices/iotHubs/AkiraHubProd/iothubowner'
+   ```
+5. **TODO: Recovery strategy into cloud-org-backup/**
+   ```sh
+   mkdir -p ~/.terraform.d/plugins/linux_amd64
    terraformer import azure --resources iothub --resource-group akira-production-rg --filter="Name=AkiraHubProd"
    
-   terraform import 'module.iothub.azurerm_iothub.prod_iothub' '/subscriptions/<idsubscription>/resourceGroups/<resource-group>/providers/Microsoft.Devices/iotHubs/<iothub-name>'
+   cp .terraform/providers/registry.terraform.io/hashicorp/azurerm/4.47.0/linux_amd64/terraform-provider-azurerm_v4.47.0_x5 ~/.terraform.d/plugins/linux_amd64/terraform-provider-azurerm
+
+   chmod +x ~/.terraform.d/plugins/linux_amd64/terraform-provider-azurerm
+
+   terraformer import azure --resources=iothub --resource-group=<ressource-group>
    ```
 
 5. **Run**
    ```sh
    export $(grep -v '^#' .env_provisioner | xargs)
    terraform init
-   terraform plan -var-file="terraform.tfvars" -out="tfplan_production_<datetime>"
+   terraform plan -var-file="terraform.tfvars" -out="tfplan_production_$(date +%F-%H%M)"
    terraform apply tfplan_production_<datetime>
    ```
 

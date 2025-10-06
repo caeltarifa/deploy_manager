@@ -29,3 +29,8 @@ variable "environment_tag" {
   type        = string
 }
 
+variable "iot_hub_name" {
+  type        = string
+  description = "IoT Hub name to link with DPS"
+}
+

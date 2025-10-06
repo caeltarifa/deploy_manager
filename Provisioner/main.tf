@@ -31,5 +31,6 @@ module "enrollment" {
   device_password = var.device_password
   client_tag      = var.client_tag
   environment_tag = var.environment_tag
+  iot_hub_name    = var.iot_hub_name
   depends_on      = [module.dps,]
 }

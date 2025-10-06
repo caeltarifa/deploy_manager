@@ -1,13 +1,16 @@
+# No creating existing iothub resource
 resource "azurerm_iothub" "prod_iothub" {
   name                = var.name
   resource_group_name = var.resource_group
-  location            = var.location
+  location            = "eastus"
   sku {
     name     = "S1"
-    capacity = 1
+    capacity = 2
   }
-  tags = {
-    environment = var.environment_tag
+  min_tls_version = "1.2"
+  
+  lifecycle {
+    ignore_changes = [ file_upload ]
   }
 }
 

@@ -7,17 +7,44 @@
 resource "null_resource" "enroll_device" {
   for_each = toset(var.device_ids)
 
+  triggers = {
+    device_id       = each.key
+    device_key      = var.device_password
+    environment_tag = var.environment_tag
+    client_tag      = var.client_tag
+  }
+
   provisioner "local-exec" {
     command = <<EOT
-      az iot dps enrollment create \
-        --dps-name ${var.dps_name} \
-        --resource-group ${var.resource_group} \
-        --enrollment-id ${each.key} \
-        --attestation-type symmetricKey \
+      az iot hub device-identity create \
+        --device-id ${each.key} \
+        --hub-name ${var.iot_hub_name} \
+        --edge-enabled true \
+        --auth-method "shared_private_key" \
         --primary-key ${var.device_password} \
         --secondary-key ${var.device_password} \
-        --provisioning-status enabled \
-        --initial-twin-properties '{"labels":{"environment":{var.environment_tag},"client":{var.client_tag}}}'
+        --auth-type key \
+        --status enabled \
+        --valid-days 250
     EOT
   }
 }
+
+# TODO: TAGGING AFTER EDGE DEVICE CREATION
+# resource "null_resource" "update_device_twin" {
+#   for_each = toset(var.device_ids)
+# 
+#   depends_on = [
+#     null_resource.enroll_device[each.key]
+#   ]
+# 
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       az iot hub device-twin update \
+#         --device-id ${each.key} \
+#         --hub-name ${var.iot_hub_name} \
+#         --set tags.environment="${var.environment_tag}" tags.client="${var.client_tag}"
+#     EOT
+#   }
+# }
+

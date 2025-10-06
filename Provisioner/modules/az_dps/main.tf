@@ -33,10 +33,11 @@ resource "azurerm_iothub_dps" "az_dps" {
 
 
 resource "azurerm_iothub_dps_shared_access_policy" "dps_policy" {
-  name                = "provisioningserviceowner"
+  name                = "dps-owner-policy"
   resource_group_name = var.resource_group
   iothub_dps_name     = azurerm_iothub_dps.az_dps.name
   service_config      = true
   enrollment_read     = true
   enrollment_write    = true
+  registration_read   = true
 }
