@@ -51,6 +51,15 @@ if host.data.get("can_ssh", True):
             "apt update",
         ],
     )
+    
+    server.shell(
+        name="Update headers",
+        commands=[
+            "apt update",
+            "apt install --reinstall ca-certificates",
+            "sudo update-ca-certificates"
+        ],
+    )
 
     apt.packages(
         name="Install aziot-edge and moby",
@@ -72,6 +81,14 @@ if host.data.get("can_ssh", True):
     )
 
     server.shell(name="Apply IoTEdge conf", commands=["iotedge config apply"])
+
+    server.shell(
+        name="Configuration to service", 
+        commands=[
+            "sersudo iotedge config apply -c '/etc/aziot/config.toml", 
+            "iotedge system restart"
+            ]
+    )
 
     systemd.service(
         name="Start iotedge service",
