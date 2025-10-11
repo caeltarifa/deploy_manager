@@ -85,7 +85,7 @@ if host.data.get("can_ssh", True):
     server.shell(
         name="Configuration to service", 
         commands=[
-            "sersudo iotedge config apply -c '/etc/aziot/config.toml", 
+            "iotedge config apply -c '/etc/aziot/config.toml'", 
             "iotedge system restart"
             ]
     )
