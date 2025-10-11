@@ -4,7 +4,7 @@ from pyinfra.operations import files, systemd
 
 class DeployService:
     """
-    A class to deploy the panic switch script and systemd service.
+    A class to deploy a script and put it on systemd service.
     """
 
     def __init__(self, shellFileSrc: str, serviceFileSrc: str):
@@ -17,7 +17,7 @@ class DeployService:
 
     def deploy(self):
         """
-        Executes the deployment tasks for the panic switch script and service.
+        Executes the deployment tasks for scripting and putting on service.
         """
 
         files.put(
@@ -39,7 +39,7 @@ class DeployService:
         )
 
         systemd.service(
-            name="Enabling and starting service",
+            name=f'Enabling and starting {self.serviceFileSrc.split("/")[-1]}',
             service=self.serviceFileSrc.split("/")[-1],
             daemon_reload=True,
             restarted=True,
